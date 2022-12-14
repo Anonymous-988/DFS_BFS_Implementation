@@ -43,21 +43,45 @@
                 if(op === 2){
                     bfs(dfsArray, [[coord[0], coord[1], 0]]);
                 }
-                update();
+                update(parseInt(coord[0]), parseInt(coord[1]));
             }
             e.stopPropagation();
         }
 
-        function update(){
-            for(var i=0; i<dfsArray.length; i++){
-                for(var j=0; j<dfsArray[0].length; j++){
+        function update(sr, sc){
+            var r = dfsArray.length;
+            var c = dfsArray[0].length;
+
+            // var maxVal = (r<c?c:r)===r?r-sr:c-sc;
+            var maxVal = 0;
+
+            if(r<c){
+                maxVal = c-1-sc < sc ? c : c-1-sc;
+            }else{
+                maxVal = r-1-sr < sr ? r : r-1-sr;
+            }
+            ++maxVal;
+            console.log("maxVal: "+maxVal);
+            
+            for(var i=0; i<r; i++){
+                for(var j=0; j<c; j++){
                     var bttn = document.getElementById(i+"_"+j);
                     bttn.value = dfsArray[i][j];
                     var val = bttn.value;
-                    if(val !== 0)
+                    if(val === 0)
+                        continue;
+
+                    if(op === 1){
                         // Used to apply bgcolor on button as per its val
                         // have to work on this for proper visuals
-                        bttn.style.backgroundColor = "rgba(255,0,0,"+(1 - (val*0.06))+")";
+                        // dfs color change
+                        bttn.style.backgroundColor = "rgba(255,0,0,"+(1 - (val/(r*c)))+")";
+                    }
+
+                    if(op=== 2){
+                        // bfs color change
+                        bttn.style.backgroundColor = "rgba(255,0,0,"+(1 - (val/maxVal))+")";
+                    }
                 }
             }
             console.log(dfsArray);
@@ -95,7 +119,7 @@
         function bfs(arr, queue, dist){
             if (queue.length < 1)  
                 return;  
-
+            
             var coords = queue.shift();
             var r = parseInt(coords[0]);
             var c = parseInt(coords[1]);
@@ -126,10 +150,11 @@
             if(r < arr.length - 1 && c < arr[0].length - 1 && arr[r + 1][c + 1] === -1){
                 queue.push([r + 1, c + 1, dist])
             }
-            if(r > 0 && c < arr[0].length -1  && arr[r - 1][c - 1] === -1){
+
+            if(r > 0 && c < arr[0].length-1  && arr[r - 1][c + 1] === -1){
                 queue.push([r - 1, c + 1, dist])
             }
-            if(r < arr.length - 1 && c > 0 && arr[r + 1][c + 1] === -1){
+            if(r < arr.length-1 && c > 0 && arr[r + 1][c - 1] === -1){
                 queue.push([r + 1, c - 1, dist])
             }
             // update();
