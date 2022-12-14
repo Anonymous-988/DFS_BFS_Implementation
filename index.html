@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DFS and BFS Implementation</title>
+    <script>
+
+        var row = prompt("Enter Number of Rows: ");
+        var cols = prompt("Enter Number of Cols: ");
+        var op = 0;
+        while(true){
+            if(op === 1 || op === 2){
+                break;
+            }
+            op = parseInt(prompt("Enter 1 for DFS and 2 for BFS: "));
+        }
+
+        console.log(row+" "+cols);
+        var dfsArray = [];
+        for(var i=0; i<row; i++){
+            var pushArr = []
+            for(var j=0; j<cols; j++){
+                pushArr[j] = -1;
+            }
+            dfsArray.push(pushArr);
+        }
+        console.log(dfsArray);
+
+        function btnClicked(e){
+            if(e.target !== e.currentTarget){
+                // alert(e.target.id);
+                var btnId = e.target.id;
+                var btn = document.getElementById(btnId);
+                clear();
+                btn.style.backgroundColor = "red";
+                var coord = btnId.split("_");
+                console.log("row is "+coord[0]+", and col is "+ coord[1]);
+                if(op === 1){
+                    dfs(dfsArray, parseInt(coord[0]), parseInt(coord[1]), 0);
+                }
+                if(op === 2){
+                    bfs(dfsArray, [[coord[0], coord[1], 0]]);
+                }
+                update();
+            }
+            e.stopPropagation();
+        }
+
+        function update(){
+            for(var i=0; i<dfsArray.length; i++){
+                for(var j=0; j<dfsArray[0].length; j++){
+                    var bttn = document.getElementById(i+"_"+j);
+                    bttn.value = dfsArray[i][j];
+                    var val = bttn.value;
+                    if(val !== 0)
+                        // Used to apply bgcolor on button as per its val
+                        // have to work on this for proper visuals
+                        bttn.style.backgroundColor = "rgba(255,0,0,"+(1 - (val*0.06))+")";
+                }
+            }
+            console.log(dfsArray);
+
+        }
+
+        function dfs(arr, sr, sc, dist){
+            //Approach 3
+            if (!isValid(arr, sr, sc))
+                return;
+                
+            if (arr[sr][sc] !== -1)
+                return;
+            console.log(arr[sr][sc]);
+            arr[sr][sc] = dist++;
+            // update();
+            dfs(arr, sr + 1, sc,dist);
+            dfs(arr, sr - 1, sc,dist);
+            dfs(arr, sr, sc + 1, dist);
+            dfs(arr, sr, sc -1, dist);
+        }
+
+        function isValid(arr, sr, sc){
+            var boolean = false;
+            try{
+                boolean = sr >= 0 && sr < arr.length && sc >= 0 && sc < arr[sr].length;
+            }
+            catch(err){
+                return false;
+            }
+            return boolean;
+
+        }
+
+        function bfs(arr, queue, dist){
+            if (queue.length < 1)  
+                return;  
+
+            var coords = queue.shift();
+            var r = parseInt(coords[0]);
+            var c = parseInt(coords[1]);
+            var dist = parseInt(coords[2]);
+
+            if(arr[r][c] === -1)
+                arr[r][c] = dist++;
+            // console.log(arr[r][c]);
+            // console.log(r+" "+c);
+            if (r > 0 && arr[r-1][c] === -1) {
+                queue.push([r-1, c, dist])
+            }
+            // console.log(r+" "+c);
+            if (c < arr[0].length - 1 && arr[r][c + 1] === -1) {
+                queue.push([r, c + 1, dist])
+            }
+            // console.log(r+" "+c);
+            if (r < arr.length - 1 && arr[r+1][c] === -1) {
+                queue.push([r + 1, c, dist])
+            }
+            // console.log(r+" "+c);
+            if (c > 0 && arr[r][c - 1] === -1) {
+                queue.push([r, c - 1, dist])
+            }
+            if(r > 0 && c > 0 && arr[r - 1][c - 1] === -1){
+                queue.push([r - 1, c - 1, dist])
+            }
+            if(r < arr.length - 1 && c < arr[0].length - 1 && arr[r + 1][c + 1] === -1){
+                queue.push([r + 1, c + 1, dist])
+            }
+            if(r > 0 && c < arr[0].length -1  && arr[r - 1][c - 1] === -1){
+                queue.push([r - 1, c + 1, dist])
+            }
+            if(r < arr.length - 1 && c > 0 && arr[r + 1][c + 1] === -1){
+                queue.push([r + 1, c - 1, dist])
+            }
+            // update();
+            bfs(arr, queue);
+        }
+
+        function clear(){
+            for(var i=0; i<dfsArray.length; i++){
+                for(var j=0; j<dfsArray[0].length; j++){
+                    dfsArray[i][j] = -1;
+                    document.getElementById(i+"_"+j).style.backgroundColor = "ButtonFace";
+                }
+            }
+        }
+
+        window.onload = () => {
+            
+            // create table element
+            var table = document.createElement("table");
+            table.setAttribute("border","0");
+            
+            // loop through rows
+            for(var i=0; i<dfsArray.length; i++){
+                //create row element
+                var row = document.createElement("tr");
+                
+                // loop through columns
+                for(var j=0; j<dfsArray[0].length; j++){
+
+                    //create cell elements
+                    var cell = document.createElement("td");
+                    cell.innerHTML = "<input type='button' id='"+i+"_"+j+"' value='"+dfsArray[i][j]+"'>";
+                    // cell.innerHTML = "<button id='"+i+"_"+j+"'>"+dfsArray[i][j]+"</button>";
+
+                    // append cell to row
+                    row.appendChild(cell);
+                }
+                
+                // append row to table
+                table.appendChild(row);
+                // document.getElementById("res").innerHTML += "<br>";
+            }
+            // append table to div
+            document.getElementById("res").appendChild(table);
+
+            table.addEventListener("click", btnClicked, false);
+        };
+        </script>
+        <style>
+            input{
+                width: 30px;
+                height: 30px;
+            }
+        </style>
+</head>
+<body>
+    <div id="res"></div>
+</body>
+</html>
